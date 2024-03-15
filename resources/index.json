@@ -1,0 +1,23 @@
+{
+  "filetree": 
+  {
+    "name": "aaatipamula",
+    "isDir": true,
+    "children": [
+      {
+        "name": ".bashrc",
+        "src": "/.bashrc",
+        "isDir": false
+      },
+      {
+        "name": "stuff.txt",
+        "isDir": false
+      },
+      {
+        "name": "projects",
+        "isDir": true,
+        "children": []
+      }
+    ]
+  }
+}
