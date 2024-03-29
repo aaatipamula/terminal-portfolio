@@ -2,9 +2,33 @@
   font-family: "JetBrains Mono", monospace;
   font-size: 20px;
 
+  /* TODO: Add light color scheme */
+
+  /* OneDark Color Scheme */
+  --background-color: #282C34;
+  --selection-background: rgba(255, 255, 255, 0.7);
+  --foreground: #DCDFE4;
+  --cursor-color: #FFFFFF;
+  --black: #282C34;
+  --white: #DCDFE4;
+  --blue: #61AFEF;
+  --cyan: #56B6C2;
+  --green: #98C379;
+  --purple: #C678DD;
+  --red: #E06C75;
+  --yellow: #E5C07B;
+  --bright-black: #5A6374;
+  --bright-white: #DCDFE4;
+  --bright-blue: #61AFEF;
+  --bright-cyan: #56B6C2;
+  --bright-green: #98C379;
+  --bright-purple: #C678DD;
+  --bright-red: #E06C75;
+  --bright-yellow: #E5C07B;
+
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--foreground);
+  background-color: var(--background-color);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -12,53 +36,46 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+::-moz-selection { /* Code for Firefox */
+  background: var(--selection-background);
+}
+
+::selection {
+  background: var(--selection-background);
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  user-select: none;
   line-height: 1.2;
+  caret-color: transparent;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--red);
   text-decoration: inherit;
 }
+
 a:hover {
-  color: #535bf2;
+  color: var(--bright-red);
 }
 
 pre {
   margin: 0;
 }
 
-div.stdin-wrapper {
-  display: inline-block;
-  border-right: .5em solid;
-}
-
-pre.stdin {
-  width: 100%;
-  overflow: hidden;
-}
-
-/* cursor blinking */ 
-@keyframes cursor-blink {
-  50% { border-color: transparent }
-}
-
-/* typing effect */
-@keyframes typewriter {
-  from { width: 0 }
-}
-
 @media (prefers-color-scheme: light) {
+  /* TODO: Swap to light color scheme */
+
   :root {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
 }
+

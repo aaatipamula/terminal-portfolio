@@ -1,0 +1,29 @@
+div#stdin-wrapper {
+  display: flex;
+}
+
+pre.stdin {
+  width: fit-content;
+  border-right: .5em solid var(--cursor-color);
+}
+
+span.ps1-bracket {
+  color: var(--green);
+}
+
+span.ps1-username {
+  color: var(--purple);
+}
+
+span.ps1-at {
+  color: var(--blue);
+}
+
+span.ps1-domain {
+  color: var(--purple);
+}
+
+span.ps1-cwd {
+  color: var(--yellow);
+}
+

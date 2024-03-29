@@ -1,5 +1,6 @@
-import { filetree } from '../resources/index.json'
+import { filetree } from '../../resources/index.json' // Temp filesystem for testing, create a filesystem API soon
 
+/* Helper function to parse args for commands */
 function parseArgs(args) {
   let finalArgs = new Set();
   for (let arg of args) {
@@ -8,10 +9,32 @@ function parseArgs(args) {
   return finalArgs
 }
 
+/* TODO: Bin funcs to implement:
+ * cd
+ * pwd
+ * man
+ * help
+ * theme
+ * clear
+ * 
+ * After filesystem API:
+ * cat 
+ * cp
+ * mkdir
+ * rmdir
+ * mv
+ * touch
+ * head
+ * tail
+ * less (maybe lol)
+ * >> and >
+ * grep
+ */
+
 function echo(args) {
   if (args.length === 0) return '';
   let str = args.reduce((prev, curr) => prev + ' ' + curr);
-  return '\n' + str;
+  return str;
 }
 
 function ls(args) {

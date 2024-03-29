@@ -1,70 +1,66 @@
 import { useState, useEffect } from 'react'
-import parse from './parse.js'
 
-const introText = "Hello..."
-const PS1 = "[aaatipamula@aniketh.dev ~] -> "
+import Stdout from './components/Stdout.jsx'
+import Stdin from './components/Stdin.jsx'
+import parse from './api/parse.js'
 
 function App() {
-  const [stdout, setStdout] = useState("");
-  const [stdin, setStdin] = useState(introText);
-  const [isAnimate, setAnimate] = useState(true);
+  const [username, setUsername] = useState("aaatipamula");
+  const [cwd, setCwd] = useState("~");
+  const [stdout, setStdout] = useState([]);
+  const [stdin, setStdin] = useState("");
 
-  const animating = { 
-    animation: `typewriter ${introText.length / 10.83}s steps(${introText.length})`,
-    borderRight: ".5em solid"
-  };
-
-  function onKeyPress(event) {
+  function handleKeyPress(event) {
     if (event.code === "Backspace") {
-      let str = (stdin === PS1) ? stdin : stdin.slice(0, -1)
-      setStdin(str)
+      setStdin(stdin.slice(0, -1));
 
     } else if (event.code === "Space") {
-      setStdin(stdin + ' ')
+      setStdin(stdin + ' ');
 
     } else if (event.code === "Enter") {
-      let input = stdin.slice(PS1.length).trim()
+      let input = stdin.trim();
 
+      // TODO: Create a stdin/out "API" object
+      // TODO: Handle Ctrl+key combos
+      // Move to bins
       if (input === "clear") {
-        setStdout("");
-        setStdin(PS1);
-        return
-
-      } else if (input === "") {
-        setStdout(((stdout.length === 0) ? '' : stdout + '\n') + stdin);
-        setStdin(PS1);
-        return
+        setStdout([]);
+        setStdin("");
+        return;
       }
 
       let output = parse(input);
-      setStdout(((stdout.length === 0) ? '' : stdout + '\n') + stdin + output);
-      setStdin(PS1);
+      // Consider swaping out nbsp
+      let lineFeed = (
+        <pre className="ps1" key={crypto.randomUUID()}>
+          <span className="ps1-bracket">[</span>
+          <span className="ps1-username">{username}</span>
+          <span className="ps1-at">@</span>
+          <span className="ps1-domain">aniketh.dev </span>
+          <span className="ps1-cwd">{cwd}</span>
+          <span className="ps1-bracket">]</span> {input}
+        </pre>
+      )
+      setStdout([...stdout, lineFeed, output]);
+      setStdin("");
 
     } else if (event.key.length === 1) {
-      setStdin(stdin + event.key)
+      setStdin(stdin + event.key);
     } 
   }
 
-  function onAnimateEnd() {
-    setAnimate(false);
-    setStdout(stdin);
-    setStdin(PS1);
-  }
-
   useEffect(() => {
-    document.addEventListener("keydown", onKeyPress);
-    return () => document.removeEventListener("keydown", onKeyPress)
+    document.addEventListener("keydown", handleKeyPress);
+    return () => document.removeEventListener("keydown", handleKeyPress);
   }, [stdin])
 
 
   return (
     <>
-      <pre id="stdout">{stdout}</pre>
-      <div className="stdin-wrapper" style={isAnimate ? {border: "none"} : {}}>
-        <pre id="stdin" className="stdin" style={isAnimate ? animating : {}} onAnimationEnd={onAnimateEnd}>{stdin}</pre>
-      </div>
+      <Stdout stdout={stdout}/>
+      <Stdin stdin={stdin} username={username} cwd={cwd}/>
     </>
-  )
+  );
 }
 
 export default App
