@@ -12,7 +12,7 @@ export default function Stdin({ stdin, username, cwd }) {
         <span className="ps1-cwd">{cwd}</span>
         <span className="ps1-bracket">]</span>
       </pre>
-      <pre id="stdin" className="stdin"> {stdin}</pre>
+      <pre id="stdin" className="stdin"> -&gt; {stdin}</pre>
     </div>
   )
 }

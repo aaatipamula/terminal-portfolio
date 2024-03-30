@@ -2,20 +2,20 @@ import { filetree } from '../../resources/index.json' // Temp filesystem for tes
 
 /* Helper function to parse args for commands */
 function parseArgs(args) {
-  let finalArgs = new Set();
+  let finalArgs = []
   for (let arg of args) {
-    if (arg.startsWith('-')) arg.slice(1).split('').forEach(e => (finalArgs.add(e)));
+    if (arg.startsWith("--")) finalArgs.push(arg.slice(2));
+    else if (arg.startsWith('-')) arg.slice(1).split('').forEach(e => (finalArgs.push(e)));
+    else finalArgs.push(arg);
   }
   return finalArgs
 }
 
 /* TODO: Bin funcs to implement:
- * cd
- * pwd
+ * su
  * man
  * help
  * theme
- * clear
  * 
  * After filesystem API:
  * cat 
@@ -31,31 +31,57 @@ function parseArgs(args) {
  * grep
  */
 
-function echo(args) {
-  if (args.length === 0) return '';
-  let str = args.reduce((prev, curr) => prev + ' ' + curr);
+function echo({ args }) {
+  if (args.length === 0) return args;
+  let str = args.join(' ')
   return str;
 }
 
-function ls(args) {
-  let final = ""
+function ls({ ctx, args }) {
   args = parseArgs(args)
-  for (let file of filetree.children) {
-    let filestring = "\n" + file.name
+  // Validate path after filesystem api implemented
 
-    if (args.has("l")) {
-      filestring = ((file.isDir) ? '\nd' : '\n-') + "rwx------- " + file.name
+  let final = filetree.children.reduce((fileArr, file) => {
+    let filestring = file.name
+
+    if (args.includes('l') || args.includes("list")) {
+      filestring = ((file.isDir) ? 'd' : '-') + `rwxr-x----  ${ctx.username} ${file.name}`
     }
 
-    if (! args.has("a") && file.name.startsWith(".")) {
-      filestring = ""
-    }
+    if (!(args.includes('a') || args.includes("all")) && file.name.startsWith('.')) return fileArr;
+    
+    fileArr.push(filestring);
+    return fileArr;
+  }, [])
 
-    final += filestring
+  return final.join('\n');
+}
+
+function cd({ ctx, args }) {
+  args = parseArgs(args);
+  const path = args.pop();
+  if (path === undefined) return;
+  // Validate path after filesytem api implemented
+  ctx.setDir(path);
+}
+
+function pwd({ ctx }) {
+  return ctx.cwd;
+}
+
+function history({ args, ctx }) {
+  args = parseArgs(args)
+  if (args.includes("clear")) {
+    ctx.setHist([]);
+    return;
   }
-  return final
+  return ctx.history.join("\n");
+}
+
+function hist({ args, ctx }) {
+  return history({ args: args, ctx: ctx });
 }
 
 export { 
-  echo, ls
+  echo, ls, cd, pwd, history, hist
 }
