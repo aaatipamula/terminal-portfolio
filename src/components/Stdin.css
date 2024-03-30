@@ -1,7 +1,3 @@
-div#stdin-wrapper {
-  display: flex;
-}
-
 pre.stdin {
   width: fit-content;
   border-right: .5em solid var(--cursor-color);
@@ -25,5 +21,9 @@ span.ps1-domain {
 
 span.ps1-cwd {
   color: var(--yellow);
+}
+
+span.ps1-arrow {
+  color: var(--cyan);
 }
 
