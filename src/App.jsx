@@ -143,7 +143,7 @@ function App() {
   /* Stay at bottom of page */
   useLayoutEffect(() => {
     window.scrollTo(0, document.body.scrollHeight);
-  }, [stdout])
+  }, [stdout, stdin])
 
 
   return (

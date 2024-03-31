@@ -41,8 +41,8 @@ function echo({ args }) {
 
 function ls({ ctx, args }) {
   args = parseArgs(args);
-  const rawPath = args.positional.pop();
-  const path = (rawPath) ? path : ctx.cwd;
+  // const rawPath = args.positional.pop();
+  // const path = (rawPath) ? rawPath : ctx.cwd;
   // TODO: Validate path after filesystem api implemented
 
   let final = filetree.children.reduce((fileArr, file) => {
