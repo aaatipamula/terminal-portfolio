@@ -25,18 +25,13 @@ function App() {
    * Only re-compute function when stdin is changed */
   const handleKeyPress = useCallback(event => {
     event.preventDefault();
-    // Render the Stdout line feed before calculating any output
-    /* NOTE: May be inefficent to re-render continously,
-      * keep an eye on this for performace */
-    const lineFeed = (content) => (
-      <Stdin
-        stdin={content}
-        uname={env.current.username}
-        cwd={env.current.cwd}
-        isActive={false}
-        key={crypto.randomUUID()}
-      />
-    )
+    // Create an object to as props for Stdin (yummy curry)
+    const lineFeed = (content) => ({
+      uname: env.current.username,
+      cwd: env.current.cwd,
+      stdin: content,
+      isActive: false
+    })
 
       /* Ctrl + C stops processes */
     if (event.ctrlKey && event.code === "KeyC") {
@@ -56,13 +51,13 @@ function App() {
       /* Clear stdout and end processing */
       switch (input) {
         case "clear":
-          // setStdout([]);
+          setStdout([]);
           setStdin("");
           return;
       }
 
-      /* Add input to history if non trival */
-      if (input.length != 0) env.current.history.push(input)
+      /* Add input to history if non-trival */
+      if (input.length != 0) env.current.history.push(input);
 
       /* Parse the output of a command given context */
       const output = parse(input, env.current);
@@ -72,7 +67,8 @@ function App() {
       currCommand.current = "";
 
       /* Update stdout and reset stdin */
-      setStdout([...stdout, lineFeed(stdin), output]);
+      if (output) setStdout([...stdout, lineFeed(stdin), output]);
+      else setStdout([...stdout, lineFeed(stdin)]);
       setStdin("");
 
       /* Move backwards (up) through history */
@@ -121,6 +117,7 @@ function App() {
    * Clean up on dismount
    * Does not need to be re-calculated */
   useEffect(() => {
+    // Focus on document on load
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
     return () => {

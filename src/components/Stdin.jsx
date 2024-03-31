@@ -1,6 +1,6 @@
 import './Stdin.css';
 
-export default function Stdin({ stdin, uname, cwd, isActive }) {
+function Stdin({ stdin, uname, cwd, isActive }) {
   return (
     <pre className={(isActive) ? "stdin" : "stdout"}>
       <span className="ps1-bracket">[</span>
@@ -13,4 +13,6 @@ export default function Stdin({ stdin, uname, cwd, isActive }) {
     </pre>
   )
 }
+
+export default Stdin
 

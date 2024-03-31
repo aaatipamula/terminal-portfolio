@@ -1,5 +1,6 @@
 import { filetree } from '../../resources/index.json' // Temp filesystem for testing, create a filesystem API soon
 
+
 /* Helper function to parse args for commands */
 function parseArgs(args) {
   const parsed = Object.create(null);
@@ -14,7 +15,6 @@ function parseArgs(args) {
 }
 
 /* TODO: Bin funcs to implement:
- * su
  * man
  * help
  * theme
@@ -35,12 +35,14 @@ function parseArgs(args) {
 
 function echo({ args }) {
   if (args.length === 0) return args;
-  let str = args.join(' ')
+  let str = args.join(' ');
   return str;
 }
 
 function ls({ ctx, args }) {
-  args = parseArgs(args)
+  args = parseArgs(args);
+  const rawPath = args.positional.pop();
+  const path = (rawPath) ? path : ctx.cwd;
   // TODO: Validate path after filesystem api implemented
 
   let final = filetree.children.reduce((fileArr, file) => {
@@ -62,8 +64,7 @@ function ls({ ctx, args }) {
 function cd({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
-  console.log(path);
-  if (path === undefined) ctx.setCwd('~');
+  if (path === undefined) ctx.cwd = '~';
   // TODO: Validate path after filesytem api implemented
   else ctx.cwd = path;
 }
@@ -88,8 +89,9 @@ function hist({ ctx, args }) {
 
 function su({ ctx, args }) {
   args = parseArgs(args);
-  const user = args.pop()
-  if (user === undefined) return "Please provide a username.";
+  if (args.positional.length > 1) return "Please provide one user."
+  const user = args.positional.pop()
+  if (user === undefined) return "Please provide a user.";
   ctx.username = user;
 }
 
