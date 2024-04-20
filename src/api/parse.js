@@ -7,7 +7,11 @@ export default function parse(input, env) {
   const output = commands.map((sub_input) => {
     const raw_args = sub_input.split(/\s+/); // Split by whitespace
     const prog = raw_args.shift(); // What program we are using
-    if (!(prog in bins)) return `${prog}: not found.`; // Grab the program function if found
+    if (!(prog in bins)) {
+      return `${prog}: not found.`; // Grab the program function if found
+    } else if (prog === "") {
+      return "" // Ignore any empty splits
+    }
     return bins[prog]({args: raw_args, ctx: env}) // Run program and calculate output
   })
   return output.join("\n")

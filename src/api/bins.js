@@ -39,6 +39,7 @@ function echo({ args }) {
   return str;
 }
 
+
 function ls({ ctx, args }) {
   args = parseArgs(args);
   // const rawPath = args.positional.pop();
@@ -61,6 +62,7 @@ function ls({ ctx, args }) {
   return final.join('\n');
 }
 
+
 function cd({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
@@ -69,9 +71,11 @@ function cd({ ctx, args }) {
   else ctx.cwd = path;
 }
 
+
 function pwd({ ctx }) {
   return ctx.cwd;
 }
+
 
 function history({ ctx, args }) {
   args = parseArgs(args)
@@ -83,9 +87,11 @@ function history({ ctx, args }) {
   return ctx.history.map((val, index) => String(index + 1).padStart(3, ' ') + " " + val).join("\n");
 }
 
+
 function hist({ ctx, args }) {
   return history({ args: args, ctx: ctx });
 }
+
 
 function su({ ctx, args }) {
   args = parseArgs(args);
@@ -94,6 +100,7 @@ function su({ ctx, args }) {
   if (user === undefined) return "Please provide a user.";
   ctx.username = user;
 }
+
 
 export { 
   echo, ls, cd, pwd, history, hist,

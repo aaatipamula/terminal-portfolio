@@ -11,6 +11,7 @@ function App() {
   /* Using refs instead of state as components don't need to re-render on update of these properties */
   let histPointer = useRef(0);
   let currCommand = useRef("");
+  const stdin = useRef(null);
   const env = useRef({
     history: (storedHistory === null) ? [] : JSON.parse(storedHistory),
     username: "aaatipamula",
@@ -19,57 +20,70 @@ function App() {
 
   /* Input and output console state */
   const [stdout, setStdout] = useState([]);
-  const [stdin, setStdin] = useState("");
+
+  const handleStdinSubmit = useCallback(event => {
+    // Ignore if not an enter
+    if (event.code !== "Enter") return;
+
+    event.preventDefault();
+
+    const input = stdin.current.value.trim();
+
+    /* Clear stdout and end processing */
+    switch (input) {
+      case "clear":
+        setStdout([]);
+        stdin.current.value = "";
+        return;
+    }
+
+    /* Add input to history if non-trival */
+    if (input.length != 0) env.current.history.push(input);
+
+    /* Line feed stdin for the stdout */
+    const lineFeed = {
+      uname: env.current.username,
+      cwd: env.current.cwd,
+      isActive: false,
+      infeed: stdin.current.value
+    };
+
+    /* Parse the output of a command given context */
+    const output = parse(input, env.current);
+
+    /* Reset the history pointer and the stored command */
+    histPointer.current = 0;
+    currCommand.current = "";
+
+    /* Update stdout and reset stdin */
+    if (output) setStdout([...stdout, lineFeed, output]);
+    else setStdout([...stdout, lineFeed]);
+    stdin.current.value = "";
+  }, [stdin, stdout]);
 
   /* Handle keypresses on app
    * Only re-compute function when stdin is changed */
-  const handleKeyPress = useCallback(event => {
-    event.preventDefault();
+  const handleGlobalKeypress = useCallback(event => {
+
+    /* Line feed stdin for the stdout */
+    const lineFeed = {
+      uname: env.current.username,
+      cwd: env.current.cwd,
+      isActive: false,
+      infeed: stdin.current.value
+    };
+
     /* Ctrl + C stops processes */
     if (event.ctrlKey && event.code === "KeyC") {
       // Stop some process
-      setStdout([...stdout, lineFeed(stdin + "^C")]);
-      setStdin("")
-      return;
+      lineFeed.infeed += "^C";
+      setStdout([...stdout, lineFeed]);
+      stdin.current.value = "";
 
-      /* Actually remove the last character of stdin */
-    } else if (event.code === "Backspace") {
-      setStdin(stdin.slice(0, -1));
-
-      /* Handle submitting a command */
-    } else if (event.code === "Enter") {
-      const input = stdin.trim();
-
-      /* Clear stdout and end processing */
-      switch (input) {
-        case "clear":
-          setStdout([]);
-          setStdin("");
-          return;
-      }
-
-      /* Add input to history if non-trival */
-      if (input.length != 0) env.current.history.push(input);
-
-      /* Line feed stdin for the stdout */
-      const lineFeed = {
-        uname: env.current.username,
-        cwd: env.current.cwd,
-        isActive: false,
-        stdin: stdin
-      };
-
-      /* Parse the output of a command given context */
-      const output = parse(input, env.current);
-
-      /* Reset the history pointer and the stored command */
-      histPointer.current = 0;
-      currCommand.current = "";
-
-      /* Update stdout and reset stdin */
-      if (output) setStdout([...stdout, lineFeed, output]);
-      else setStdout([...stdout, lineFeed]);
-      setStdin("");
+      /* Tab to refocus input */
+    } else if (event.code === "Tab") {
+      event.preventDefault();
+      stdin.current.focus();
 
       /* Move backwards (up) through history */
     } else if (event.code === "ArrowUp") {
@@ -78,9 +92,9 @@ function App() {
        * Calculate the next index
        * Set stdin to the command we grabbed */
       if (env.current.history.length === 0) return;
-      else if (histPointer.current === 0) currCommand.current = stdin;
+      else if (histPointer.current === 0) currCommand.current = stdin.current.value;
       let indx = (histPointer.current <= -env.current.history.length) ? histPointer.current : --histPointer.current
-      setStdin(env.current.history.at(indx));
+      stdin.current.value = env.current.history.at(indx);
 
       /* Move forward (down) through history */
     } else if (event.code === "ArrowDown") {
@@ -89,17 +103,12 @@ function App() {
        * Otherwise load the next command we calculated */
       let indx = (histPointer.current >= 0) ? histPointer.current : ++histPointer.current
       if (indx === 0) {
-        setStdin(currCommand.current);
-        return;
-      }
-      setStdin(env.current.history.at(indx));
+        stdin.current.value = currCommand.current;
+      } else stdin.current.value = env.current.history.at(indx);
 
-      /* If its a single character we can just input it */
-    } else if (event.key.length === 1) {
-      setStdin(stdin + event.key);
-    } 
+    }
 
-  }, [stdin])
+  }, [stdin, stdout])
 
   /* Blur when we leave the document
    * Does not need to be re-calculated */
@@ -107,33 +116,40 @@ function App() {
     document.body.style.opacity = 0.7;
   }, [])
 
-  /* Focus when we are on the document
-   * Does not need to be re-calculated */
-  const handleFocus = useCallback(() => {
+  /* Focus when we are on the document */
+  const handleFocus = useCallback((event) => {
+    event.preventDefault()
     document.body.style.opacity = 1;
-  }, [])
+    stdin.current.focus();
+  }, [stdin])
 
   /* Add listeners to handle leaving and focusing page
-   * Clean up on dismount
-   * Does not need to be re-calculated */
+   * Clean up on dismount */
   useEffect(() => {
     // Focus on document on load
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
+    // document.body.addEventListener("click", handleFocus)
+    stdin.current.focus();
     return () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
+      // document.body.removeEventListener("click", handleFocus)
 
     }
-  }, [])
+  }, [handleFocus])
 
   /* Add listener to handle keypresses
    * Clean up on dismount
    * relies on handleKeyPress */
   useEffect(() => {
-    document.addEventListener("keydown", handleKeyPress);
-    return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [handleKeyPress])
+    document.addEventListener("keydown", handleGlobalKeypress);
+    stdin.current.addEventListener("keydown", handleStdinSubmit)
+    return () => {
+      document.removeEventListener("keydown", handleGlobalKeypress);
+      stdin.current.removeEventListener("keydown", handleStdinSubmit)
+    }
+  }, [handleGlobalKeypress, handleStdinSubmit])
 
   /* Persist our history */
   useEffect(() => {
@@ -143,7 +159,7 @@ function App() {
   /* Stay at bottom of page */
   useLayoutEffect(() => {
     window.scrollTo(0, document.body.scrollHeight);
-  }, [stdout, stdin])
+  }, [stdout])
 
 
   return (
@@ -151,9 +167,9 @@ function App() {
       <Stdout stdout={stdout}/>
       <div id="stdin-wrapper">
         <Stdin
-          stdin={stdin}
           uname={env.current.username}
           cwd={env.current.cwd}
+          stdinRef={stdin}
           isActive={true}
         />
       </div>
