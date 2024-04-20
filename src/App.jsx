@@ -25,15 +25,7 @@ function App() {
    * Only re-compute function when stdin is changed */
   const handleKeyPress = useCallback(event => {
     event.preventDefault();
-    // Create an object to as props for Stdin (yummy curry)
-    const lineFeed = (content) => ({
-      uname: env.current.username,
-      cwd: env.current.cwd,
-      stdin: content,
-      isActive: false
-    })
-
-      /* Ctrl + C stops processes */
+    /* Ctrl + C stops processes */
     if (event.ctrlKey && event.code === "KeyC") {
       // Stop some process
       setStdout([...stdout, lineFeed(stdin + "^C")]);
@@ -59,6 +51,14 @@ function App() {
       /* Add input to history if non-trival */
       if (input.length != 0) env.current.history.push(input);
 
+      /* Line feed stdin for the stdout */
+      const lineFeed = {
+        uname: env.current.username,
+        cwd: env.current.cwd,
+        isActive: false,
+        stdin: stdin
+      };
+
       /* Parse the output of a command given context */
       const output = parse(input, env.current);
 
@@ -67,8 +67,8 @@ function App() {
       currCommand.current = "";
 
       /* Update stdout and reset stdin */
-      if (output) setStdout([...stdout, lineFeed(stdin), output]);
-      else setStdout([...stdout, lineFeed(stdin)]);
+      if (output) setStdout([...stdout, lineFeed, output]);
+      else setStdout([...stdout, lineFeed]);
       setStdin("");
 
       /* Move backwards (up) through history */
