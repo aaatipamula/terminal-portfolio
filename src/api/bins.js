@@ -29,9 +29,9 @@ function expandPath(to_path, from_path) {
  * man
  * help
  * theme
- * 
+ *
  * After filesystem API:
- * cat 
+ * cat
  * cp
  * mkdir
  * rmdir
@@ -131,7 +131,7 @@ async function su({ ctx, args }) {
 }
 
 
-export { 
+export {
   echo, ls, cd, pwd, history, hist,
   su
 }
