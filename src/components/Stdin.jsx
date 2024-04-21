@@ -3,6 +3,7 @@ import './Stdin.css';
 function Stdin({ stdinRef, infeed, uname, cwd, isActive }) {
 
   const outval = (isActive) ? <input id="stdin" type="text" ref={stdinRef}/> : infeed
+  const path = cwd.replace("/home/aaatipamula", "~");
 
   return (
     <pre className={(isActive) ? "stdin" : "stdout"}>
@@ -10,7 +11,7 @@ function Stdin({ stdinRef, infeed, uname, cwd, isActive }) {
       <span className="ps1-username">{uname}</span>
       <span className="ps1-at">@</span>
       <span className="ps1-domain">aniketh.dev </span>
-      <span className="ps1-cwd">{cwd}</span>
+      <span className="ps1-cwd">{path}</span>
       <span className="ps1-bracket">]</span>
       <span className="ps1-arrow"> &gt; </span>
       {outval}

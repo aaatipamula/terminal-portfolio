@@ -6,9 +6,13 @@ function parseArgs(args) {
   parsed.opts = [];
   parsed.positional = [];
   for (const arg of args) {
-    if (arg.startsWith("--")) parsed.opts.push(arg.slice(2));
-    else if (arg.startsWith('-')) parsed.opts = parsed.opts.concat(arg.slice(1).split(''));
-    else parsed.positional.push(arg);
+    if (arg.startsWith("--")) {
+      parsed.opts.push(arg.slice(2));
+    } else if (arg.startsWith("-")) {
+      parsed.opts.concat(arg.slice(1).split(''));
+    } else {
+      parsed.positional.push(arg);
+    }
   }
   return parsed
 }
@@ -59,6 +63,8 @@ async function ls({ ctx, args }) {
   const res = await fetch("http://localhost:5000/fs" + abs_path);
 
   if (res.ok) {
+    console.log(args);
+
     const ReduceFileobj = (fileArr, file) =>  {
       if (!(args.opts.includes('a') || args.opts.includes("all")) && file.name.startsWith('.')) return fileArr;
 
@@ -74,6 +80,7 @@ async function ls({ ctx, args }) {
 
     const data = await res.json();
     const fileobj = (data.type === "dir") ? data.fileobj : [data.fileobj];
+    console.log(fileobj);
     const final = fileobj.reduce(ReduceFileobj, []);
 
     return final.join("\n");
@@ -136,3 +143,4 @@ export {
   su
 }
 
+console.log(parseArgs(["-l", "--list", "-bah"]))

@@ -15,13 +15,13 @@ function App() {
   const env = useRef({
     history: (storedHistory === null) ? [] : JSON.parse(storedHistory),
     username: "aaatipamula",
-    cwd: "~"
+    cwd: "/home/aaatipamula"
   });
 
   /* Input and output console state */
   const [stdout, setStdout] = useState([]);
 
-  const handleStdinSubmit = useCallback(event => {
+  const handleStdinSubmit = useCallback(async event => {
     // Ignore if not an enter
     if (event.code !== "Enter") return;
 
@@ -49,7 +49,7 @@ function App() {
     };
 
     /* Parse the output of a command given context */
-    const output = parse(input, env.current);
+    const output = await parse(input, env.current);
 
     /* Reset the history pointer and the stored command */
     histPointer.current = 0;
