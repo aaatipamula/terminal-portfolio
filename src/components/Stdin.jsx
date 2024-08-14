@@ -3,7 +3,7 @@ import './Stdin.css';
 function Stdin({ stdinRef, infeed, uname, cwd, isActive }) {
 
   const outval = (isActive) ? <input id="stdin" type="text" ref={stdinRef}/> : infeed
-  const path = cwd.replace("/home/aaatipamula", "~");
+  const path = cwd.replace(`/home/${uname}`, "~");
 
   return (
     <pre className={(isActive) ? "stdin" : "stdout"}>

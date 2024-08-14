@@ -50,7 +50,6 @@ async function echo({ args }) {
   return str;
 }
 
-
 async function ls({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
@@ -82,7 +81,6 @@ async function ls({ ctx, args }) {
   return `ls: ${path}: does not exist.`;
 }
 
-
 async function cd({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
@@ -100,11 +98,9 @@ async function cd({ ctx, args }) {
   return msg;
 }
 
-
 async function pwd({ ctx }) {
   return ctx.cwd;
 }
-
 
 async function history({ ctx, args }) {
   args = parseArgs(args)
@@ -116,11 +112,9 @@ async function history({ ctx, args }) {
   return ctx.history.map((val, index) => String(index + 1).padStart(3, ' ') + " " + val).join("\n");
 }
 
-
 async function hist({ ctx, args }) {
   return history({ args: args, ctx: ctx });
 }
-
 
 async function su({ ctx, args }) {
   args = parseArgs(args);
@@ -130,9 +124,16 @@ async function su({ ctx, args }) {
   ctx.username = user;
 }
 
+async function fullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else if (document.exitFullscreen) {
+    document.exitFullscreen();
+  }
+}
 
 export {
   echo, ls, cd, pwd, history, hist,
-  su
+  su, fullscreen
 }
 

@@ -112,16 +112,18 @@ function App() {
 
   /* Blur when we leave the document
    * Does not need to be re-calculated */
-  const handleBlur = useCallback(() => {
+  const handleBlur = () => {
     document.body.style.opacity = 0.7;
-  }, [])
+  }
 
   /* Focus when we are on the document */
-  const handleFocus = useCallback((event) => {
+  const handleFocus = (event) => {
     event.preventDefault()
     document.body.style.opacity = 1;
-    stdin.current.focus();
-  }, [stdin])
+    if (stdin.current) {
+      stdin.current.focus();
+    }
+  }
 
   /* Add listeners to handle leaving and focusing page
    * Clean up on dismount */
