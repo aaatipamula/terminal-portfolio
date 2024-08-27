@@ -2,26 +2,30 @@
 
 /* Helper function to parse args for commands */
 function parseArgs(args) {
-  const parsed = Object.create(null);
-  parsed.opts = [];
-  parsed.positional = [];
+  let opts = [];
+  const positional = [];
   for (const arg of args) {
-    if (arg.startsWith("--")) parsed.opts.push(arg.slice(2));
-    else if (arg.startsWith('-')) parsed.opts = parsed.opts.concat(arg.slice(1).split(''));
-    else parsed.positional.push(arg);
+    if (arg.startsWith('--')) opts.push(arg.slice(2));
+    else if (arg.startsWith('-')) opts = opts.concat(arg.slice(1).split(''));
+    else positional.push(arg);
   }
-  return parsed
+  console.log(opts, positional)
+  return { opts: opts, positional: positional };
 }
 
-function expandPath(to_path, from_path) {
-  if (to_path === undefined) return "/home/aaatipamula";
-  to_path = to_path.startsWith("~") ? to_path.replace("~", "/home/aaatipamula") : to_path;
-  from_path = from_path.startsWith("~") ? from_path.replace("~", "/home/aaatipamula") : from_path;
+/* Expand the "~", ".", and ".." to the full path */
+function expandPath(username, to_path, from_path) {
+  const home = `/home/${username}`;
+  to_path = to_path.startsWith("~") ? to_path.replace("~", home) : to_path;
+  from_path = from_path.startsWith("~") ? from_path.replace("~", home) : from_path;
+  console.log(to_path, from_path);
   while (to_path.startsWith("..")) {
     from_path = from_path.replace(/\/\w*\/?$/gm, "");
     to_path = to_path.replace(/..\/?/, "");
+    to_path = from_path + "/" + to_path;
+    console.log(to_path, from_path);
   }
-  return from_path + "/" + to_path
+  return to_path;
 }
 
 
@@ -53,47 +57,57 @@ async function echo({ args }) {
 async function ls({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
-  const abs_path = expandPath(path, ctx.cwd);
+  const abs_path = path ? expandPath(ctx.username, path, ctx.cwd) : ctx.cwd;
 
-  const res = await fetch("http://localhost:5000/fs" + abs_path);
+  // TODO: Replace url with an env variable
+  try{
+    const res = await fetch("http://localhost:5000/fs" + abs_path);
 
-  if (res.ok) {
-    const ReduceFileobj = (fileArr, file) =>  {
-      if (!(args.opts.includes('a') || args.opts.includes("all")) && file.name.startsWith('.')) return fileArr;
+    if (res.ok) {
+      const reduceDirObj = (fileArr, file) =>  {
+        if (!(args.opts.includes('a') || args.opts.includes("all")) && file.name.startsWith('.')) return fileArr;
 
-      let filestring = file.name;
+        let filestring = file.name;
 
-      if (args.opts.includes('l') || args.opts.includes("list")) {
-        filestring = `${file.mode} ${file.uid} ${file.gid} ${file.size} ${file.created} ${file.name}`;
+        if (args.opts.includes('l') || args.opts.includes("list")) {
+          filestring = `${file.permissions}\t${file.owner}\t${file.group}\t${file.size}\t${file.modified_time}\t${file.name}`;
+        }
+
+        fileArr.push(filestring);
+        return fileArr;
       }
 
-      fileArr.push(filestring);
-      return fileArr;
+      const data = await res.json();
+      const dirObj = (Array.isArray(data)) ? data : [data];
+      const final = (dirObj) ? dirObj.reduce(reduceDirObj, []) : "total 0";
+      return final.join('\n');
     }
 
-    const data = await res.json();
-    const fileobj = (data.type === "dir") ? data.fileobj : [data.fileobj];
-    const final = fileobj.reduce(ReduceFileobj, []);
-
-    return final.join("\n");
+  } catch(err) {
+    return "ls: Some error occured";
   }
-
   return `ls: ${path}: does not exist.`;
 }
 
 async function cd({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
-  const abs_path = expandPath(path, ctx.cwd);
-  // TODO: Validate path after filesytem api implemented
+  const abs_path = path ? expandPath(ctx.username, path, ctx.cwd) : `/home/${ctx.username}`;
+
   let msg = `cd: ${path}: does not exist.`;
-  const res = await fetch("http://localhost:5000/fs" + abs_path);
-  if (res.ok) {
-    const data = await res.json()
-    if (data.type === "dir") {
-      ctx.cwd = abs_path;
-      msg = "";
-    } else msg = `cd: ${path}: is not a directory.`;
+  try {
+    // TODO: Validate path after filesytem api implemented
+    console.log("http://localhost:5000/fs" + abs_path);
+    const res = await fetch("http://localhost:5000/fs" + abs_path);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        ctx.cwd = abs_path;
+        msg = "";
+      } else msg = `cd: ${path}: is not a directory.`;
+    }
+  } catch (err) {
+    return "cd: Some error occured"
   }
   return msg;
 }
@@ -132,8 +146,20 @@ async function fullscreen() {
   }
 }
 
+async function help() {
+  return `Commands:
+  echo - Repeat all following text after 'echo'
+  ls - List all files in current directory
+  cd - Print the current working directory
+  history/hist - List the history of commands you've used
+  su - Switch user
+  fullscreen - Make the tab full screen
+  help - display this help page
+  `
+}
+
 export {
   echo, ls, cd, pwd, history, hist,
-  su, fullscreen
+  su, fullscreen, help
 }
 

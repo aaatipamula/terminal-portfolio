@@ -131,12 +131,12 @@ function App() {
     // Focus on document on load
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
-    // document.body.addEventListener("click", handleFocus)
+    document.body.addEventListener("click", handleFocus)
     stdin.current.focus();
     return () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
-      // document.body.removeEventListener("click", handleFocus)
+      document.body.removeEventListener("click", handleFocus)
 
     }
   }, [handleFocus])
