@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react'
 
 import Stdout from './components/Stdout.jsx'
 import Stdin from './components/Stdin.jsx'
@@ -22,7 +22,7 @@ function App() {
   const [stdout, setStdout] = useState([]);
 
   const handleStdinSubmit = useCallback(async event => {
-    // Ignore if not an enter
+    /* Ignore if not an enter */
     if (event.code !== "Enter") return;
 
     event.preventDefault();
@@ -62,7 +62,8 @@ function App() {
   }, [stdin, stdout]);
 
   /* Handle keypresses on app
-   * Only re-compute function when stdin is changed */
+   * Only re-compute function when stdin is changed
+   */
   const handleGlobalKeypress = useCallback(event => {
 
     /* Line feed stdin for the stdout */
@@ -90,7 +91,8 @@ function App() {
       /* Ignore if there is no history
        * Save the command we are typing if we start going through history
        * Calculate the next index
-       * Set stdin to the command we grabbed */
+       * Set stdin to the command we grabbed
+       */
       if (env.current.history.length === 0) return;
       else if (histPointer.current === 0) currCommand.current = stdin.current.value;
       let indx = (histPointer.current <= -env.current.history.length) ? histPointer.current : --histPointer.current
@@ -100,7 +102,8 @@ function App() {
     } else if (event.code === "ArrowDown") {
       /* Find the next index
        * If we are at the 'start' of the history array, load the saved command we were typing
-       * Otherwise load the next command we calculated */
+       * Otherwise load the next command we calculated
+       */
       let indx = (histPointer.current >= 0) ? histPointer.current : ++histPointer.current
       if (indx === 0) {
         stdin.current.value = currCommand.current;
@@ -111,7 +114,8 @@ function App() {
   }, [stdin, stdout])
 
   /* Blur when we leave the document
-   * Does not need to be re-calculated */
+   * Does not need to be re-calculated
+   */
   const handleBlur = () => {
     document.body.style.opacity = 0.7;
   }
@@ -126,7 +130,8 @@ function App() {
   }
 
   /* Add listeners to handle leaving and focusing page
-   * Clean up on dismount */
+   * Clean up on dismount
+   */
   useEffect(() => {
     // Focus on document on load
     window.addEventListener("blur", handleBlur);
@@ -143,7 +148,8 @@ function App() {
 
   /* Add listener to handle keypresses
    * Clean up on dismount
-   * relies on handleKeyPress */
+   * relies on handleKeyPress
+   */
   useEffect(() => {
     document.addEventListener("keydown", handleGlobalKeypress);
     stdin.current.addEventListener("keydown", handleStdinSubmit)
@@ -162,7 +168,6 @@ function App() {
   useLayoutEffect(() => {
     window.scrollTo(0, document.body.scrollHeight);
   }, [stdout])
-
 
   return (
     <>

@@ -1,5 +1,12 @@
 import Stdin from "./Stdin"
 
+/**
+ * @typedef { import('./Stdin').StdinProps } StdinItem
+ */
+
+/**
+ * @param {{ stdout: (StdinItem | string)[] }}
+ */
 function Stdout({ stdout }) {
   const output = stdout.map(item => {
     if (typeof(item) === 'string')

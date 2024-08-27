@@ -1,14 +1,19 @@
 import * as bins from "./bins"
 
-
-/* Parse commands and args */
 /**
+ * @typedef { import('../types').Env } Env
+ */
+
+/** Parse commands and args
  * @param { string } input
+ * @param { Env } env
+ * @returns { Promise<string> }
  */
 export default async function parse(input, env) {
 
   /**
    * @param { string } line
+   * @returns { Promise<string> }
    */
   const apply = async (line) => {
     const raw_args = line.split(/\s+/); // Split by whitespace

@@ -1,5 +1,21 @@
 import './Stdin.css';
 
+/**
+ * @typedef { import('react').MutableRefObject }
+ */
+
+/**
+ * @typedef { Object } StdinProps
+ * @property { MutableRefObject<HTMLInputElement | null> } stdinRef
+ * @property { string } uname
+ * @property { string } cwd
+ * @property { string } infeed
+ * @property { boolean } isActive
+ */
+
+/**
+ * @param { StdinProps } props
+ */
 function Stdin({ stdinRef, infeed, uname, cwd, isActive }) {
 
   const outval = (isActive) ? <input id="stdin" type="text" ref={stdinRef}/> : infeed
