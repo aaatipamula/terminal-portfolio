@@ -33,7 +33,7 @@ def get_file_info(file_path: str, name=None) -> Dict[str, str]:
         return metadata
 
     except FileNotFoundError:
-        return {'error': 'File not found'}
+        return {'error': f'{file_path} not found'}
     except PermissionError:
         return {'error': 'Permission denied'}
     except Exception as e:
@@ -42,6 +42,9 @@ def get_file_info(file_path: str, name=None) -> Dict[str, str]:
 @app.route("/fs/<path:path>")
 def file_system(path: str):
     full_path = '/' + path
+    if full_path == "/home/aaatipamula":
+        # Get list of projects, wrap filename in markdown to link
+        return jsonify([])
     try:
         # Check if the path is indeed a directory
         if not os.path.isdir(full_path):
@@ -58,11 +61,11 @@ def file_system(path: str):
         return jsonify(metadata_list)
 
     except FileNotFoundError:
-        return jsonify({'error': 'File not found'})
+        return jsonify({'error': f'{full_path} not found'})
     except PermissionError:
         return jsonify({'error': 'Permission denied'})
     except Exception as e:
         return jsonify({'error': str(e)})
  
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=8000)
+	app.run(debug=True, host='0.0.0.0', port=8000)

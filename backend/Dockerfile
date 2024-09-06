@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1.4
+
 FROM --platform=$BUILDPLATFORM python:3.10-alpine AS builder
 
 WORKDIR /app
@@ -9,7 +10,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . /app
 
-ENTRYPOINT ["python3"]
+ENTRYPOINT ["flask"]
 CMD ["app.py"]
 
 FROM builder as dev-envs

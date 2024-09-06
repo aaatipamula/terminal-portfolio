@@ -1,4 +1,4 @@
-// import { filetree } from '../../resources/index.json' // Temp filesystem for testing, create a filesystem API soon
+const SERVER_URI = import.meta.env.VITE_SERVER_URI || "http://localhost:8000/";
 
 /* Helper function to parse args for commands */
 function parseArgs(args) {
@@ -23,7 +23,6 @@ function expandPath(username, to_path, from_path) {
     from_path = from_path.replace(/\/\w*\/?$/gm, "");
     to_path = to_path.replace(/..\/?/, "");
     to_path = from_path + "/" + to_path;
-    console.log(to_path, from_path);
   }
   return to_path;
 }
@@ -61,8 +60,7 @@ async function ls({ ctx, args }) {
 
   // TODO: Replace url with an env variable
   try{
-    const res = await fetch("http://localhost:5000/fs" + abs_path);
-
+    const res = await fetch(SERVER_URI + "fs" + abs_path);
     if (res.ok) {
       const reduceDirObj = (fileArr, file) =>  {
         if (!(args.opts.includes('a') || args.opts.includes("all")) && file.name.startsWith('.')) return fileArr;
@@ -78,12 +76,14 @@ async function ls({ ctx, args }) {
       }
 
       const data = await res.json();
+      if (data.error) return data.error;
       const dirObj = (Array.isArray(data)) ? data : [data];
       const final = (dirObj) ? dirObj.reduce(reduceDirObj, []) : "total 0";
       return final.join('\n');
     }
 
   } catch(err) {
+    console.log(err)
     return "ls: Some error occured";
   }
   return `ls: ${path}: does not exist.`;
@@ -97,16 +97,17 @@ async function cd({ ctx, args }) {
   let msg = `cd: ${path}: does not exist.`;
   try {
     // TODO: Validate path after filesytem api implemented
-    console.log("http://localhost:5000/fs" + abs_path);
-    const res = await fetch("http://localhost:5000/fs" + abs_path);
+    const res = await fetch(SERVER_URI + "fs" + abs_path);
     if (res.ok) {
       const data = await res.json();
+      if (data.error) return data.error;
       if (Array.isArray(data)) {
         ctx.cwd = abs_path;
         msg = "";
       } else msg = `cd: ${path}: is not a directory.`;
     }
   } catch (err) {
+    console.log(err)
     return "cd: Some error occured"
   }
   return msg;
@@ -157,6 +158,7 @@ async function help() {
   help - display this help page
   `
 }
+
 
 export {
   echo, ls, cd, pwd, history, hist,
