@@ -1,5 +1,5 @@
 import Stdin from "./Stdin"
-import Markdown from "react-markdown";
+import MarkdownRenderer from "./MarkdownRender"
 
 /**
  * @typedef { import('./Stdin').StdinProps } StdinItem
@@ -11,7 +11,7 @@ import Markdown from "react-markdown";
 function Stdout({ stdout }) {
   const output = stdout.map(item => {
     if (typeof(item) === 'string')
-      return <pre key={crypto.randomUUID()}><Markdown>{item}</Markdown></pre>;
+      return <MarkdownRenderer key={crypto.randomUUID()} text={item}/>
     return <Stdin {...item} key={crypto.randomUUID()}/>
   });
 

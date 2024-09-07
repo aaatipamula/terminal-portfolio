@@ -27,6 +27,26 @@ function expandPath(username, to_path, from_path) {
   return to_path;
 }
 
+function longestStrings(arr) {
+    let maxOwnerLength = 0;
+    let maxGroupLength = 0;
+    let maxSizeLength = 0;
+
+    arr.forEach(obj => {
+        if (obj.owner && obj.owner.length > maxOwnerLength) {
+            maxOwnerLength = obj.owner.length;
+        }
+        if (obj.group && obj.group.length > maxGroupLength) {
+            maxGroupLength = obj.group.length;
+        }
+        if (obj.size && obj.size.length > maxSizeLength) {
+            maxSizeLength = obj.size.length;
+        }
+    });
+
+    return [maxOwnerLength + 1, maxGroupLength + 1, maxSizeLength + 1];
+}
+
 
 /* TODO: Bin funcs to implement:
  * man
@@ -62,23 +82,26 @@ async function ls({ ctx, args }) {
   try{
     const res = await fetch(SERVER_URI + "fs" + abs_path);
     if (res.ok) {
+      const data = await res.json();
+      if (data.error) return data.error;
+      const dirObj = (Array.isArray(data)) ? data : [data];
+      const [padOwner, padGroup, padSize] = longestStrings(dirObj);
+
       const reduceDirObj = (fileArr, file) =>  {
         if (!(args.opts.includes('a') || args.opts.includes("all")) && file.name.startsWith('.')) return fileArr;
 
         let filestring = file.name;
 
         if (args.opts.includes('l') || args.opts.includes("list")) {
-          filestring = `${file.permissions}\t${file.owner}\t${file.group}\t${file.size}\t${file.modified_time}\t${file.name}`;
+          filestring = `${file.permissions} ${file.owner.padEnd(padOwner)}${file.group.padEnd(padGroup)}${file.size.padStart(padSize)} ${file.modified_time} ${file.name}`;
         }
 
         fileArr.push(filestring);
         return fileArr;
       }
 
-      const data = await res.json();
-      if (data.error) return data.error;
-      const dirObj = (Array.isArray(data)) ? data : [data];
-      return (dirObj.length > 0) ? dirObj.reduce(reduceDirObj, []).join('\n') : "total 0";
+      const joinChar = (args.opts.includes('l')) ? '\n' : ' '
+      return (dirObj.length > 0) ? dirObj.reduce(reduceDirObj, []).join(joinChar) : "total 0";
     }
 
   } catch(err) {

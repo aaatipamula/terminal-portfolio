@@ -9,7 +9,7 @@ from flask_cors import CORS
 
 from models import FileObj
 from const import PROJECTS
-from utils import create_project_folder
+from utils import create_project_folder, convert_bytes
 
 app = Flask("backend")
 
@@ -28,7 +28,7 @@ def get_file_info(file_path: str, name=None) -> FileObj | Dict[str, str]:
             'links': file_stat.st_nlink,
             'owner': pwd.getpwuid(file_stat.st_uid).pw_name,
             'group': grp.getgrgid(file_stat.st_gid).gr_name,
-            'size': file_stat.st_size,
+            'size': convert_bytes(file_stat.st_size),
             'modified_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(file_stat.st_mtime)),
             'access_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(file_stat.st_atime)),
             'change_time': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(file_stat.st_ctime))

@@ -7,7 +7,7 @@ class FileObj(TypedDict):
     links: int
     owner: str
     group: str
-    size: int
+    size: str
     modified_time: str
     access_time: str
     change_time: str
