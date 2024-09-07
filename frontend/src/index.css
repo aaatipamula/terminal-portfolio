@@ -63,8 +63,9 @@ a {
   }
 }
 
-p, pre {
+pre {
   margin: 0;
+  white-space: pre-wrap;
 }
 
 @media (prefers-color-scheme: light) {

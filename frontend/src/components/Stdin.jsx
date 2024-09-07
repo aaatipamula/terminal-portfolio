@@ -25,7 +25,7 @@ function Stdin({ stdinRef, infeed, uname, cwd, isActive, progRunning }) {
   return (
     <pre 
       className={(isActive) ? "stdin" : "stdout"}
-      style={{ display: (isActive && progRunning) ? 'none' : 'block' }}
+      style={{ display: (isActive && progRunning) ? 'none' : 'flex' }}
     >
       <span className="ps1-bracket">[</span>
       <span className="ps1-username">{uname}</span>
