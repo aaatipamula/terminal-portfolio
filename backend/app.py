@@ -3,15 +3,19 @@ import stat
 import pwd
 import grp
 import time
-from typing import Dict 
+from typing import Dict
 from flask import Flask, jsonify
 from flask_cors import CORS
+
+from models import FileObj
+from const import PROJECTS
+from utils import create_project_folder
 
 app = Flask("backend")
 
 CORS(app)
 
-def get_file_info(file_path: str, name=None) -> Dict[str, str]:
+def get_file_info(file_path: str, name=None) -> FileObj | Dict[str, str]:
     try:
         # Get file status
         file_stat = os.stat(file_path)
@@ -42,9 +46,9 @@ def get_file_info(file_path: str, name=None) -> Dict[str, str]:
 @app.route("/fs/<path:path>")
 def file_system(path: str):
     full_path = '/' + path
-    if full_path == "/home/aaatipamula":
+    if full_path == '/home/aaatipamula':
         # Get list of projects, wrap filename in markdown to link
-        return jsonify([])
+        return jsonify(create_project_folder(PROJECTS))
     try:
         # Check if the path is indeed a directory
         if not os.path.isdir(full_path):

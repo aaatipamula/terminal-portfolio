@@ -78,8 +78,7 @@ async function ls({ ctx, args }) {
       const data = await res.json();
       if (data.error) return data.error;
       const dirObj = (Array.isArray(data)) ? data : [data];
-      const final = (dirObj) ? dirObj.reduce(reduceDirObj, []) : "total 0";
-      return final.join('\n');
+      return (dirObj.length > 0) ? dirObj.reduce(reduceDirObj, []).join('\n') : "total 0";
     }
 
   } catch(err) {

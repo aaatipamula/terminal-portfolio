@@ -72,6 +72,8 @@ function App() {
    */
   const handleGlobalKeypress = useCallback(event => {
 
+    if (stdin.current && document.activeElement !== stdin.current) stdin.current.focus();
+
     /* Line feed stdin for the stdout */
     const lineFeed = {
       uname: env.current.username,
@@ -142,12 +144,12 @@ function App() {
     // Focus on document on load
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
-    document.body.addEventListener("click", handleFocus)
+    // document.body.addEventListener("click", handleFocus)
     stdin.current.focus();
     return () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
-      document.body.removeEventListener("click", handleFocus)
+      // document.body.removeEventListener("click", handleFocus)
 
     }
   }, [handleFocus])
