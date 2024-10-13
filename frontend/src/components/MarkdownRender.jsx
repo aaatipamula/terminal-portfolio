@@ -1,4 +1,3 @@
-import React from 'react';
 import ReactMarkdown from 'react-markdown';
 
 /**
@@ -15,7 +14,7 @@ function MarkdownRenderer({ text }) {
       {text}
     </ReactMarkdown>
   );
-};
+}
 
 export default MarkdownRenderer;
 

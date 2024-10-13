@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useLayoutEffect, useRef } from 'react'
 
 import Stdout from './components/Stdout.jsx'
 import Stdin from './components/Stdin.jsx'
-import parse from './api/parse.js'
+import parse from './utils/parse.js'
 
 /* Persist history across sessions */
 const storedHistory = localStorage.getItem("history");
@@ -15,7 +15,8 @@ function App() {
   const env = useRef({
     history: (storedHistory === null) ? [] : JSON.parse(storedHistory),
     username: "aaatipamula",
-    cwd: "/home/aaatipamula"
+    cwd: "/home/aaatipamula",
+    filetree: null,
   });
 
   /* Input and output console state */

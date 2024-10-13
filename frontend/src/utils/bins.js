@@ -1,6 +1,13 @@
+/**
+ * @typedef { import('../types').Env } Env
+ */
+
 const SERVER_URI = import.meta.env.VITE_SERVER_URI || "http://localhost:8000/";
 
-/* Helper function to parse args for commands */
+/**
+  * @param { string[] } args
+  * @returns {{ opts: string[], positional: string[] }}
+  */
 function parseArgs(args) {
   let opts = [];
   const positional = [];
@@ -72,6 +79,9 @@ async function echo({ args }) {
   return str;
 }
 
+/**
+  * @param {{ ctx: FileObj, args: string[] }}
+  */
 async function ls({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
@@ -110,6 +120,9 @@ async function ls({ ctx, args }) {
   return `ls: ${path}: does not exist.`;
 }
 
+/**
+  * @param {{ ctx: FileObj, args: string[] }}
+  */
 async function cd({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
@@ -123,6 +136,7 @@ async function cd({ ctx, args }) {
       if (data.error) return data.error;
       if (Array.isArray(data)) {
         ctx.cwd = abs_path;
+        ctx.filetree = data;
         msg = "";
       } else msg = `cd: ${path}: is not a directory.`;
     }
