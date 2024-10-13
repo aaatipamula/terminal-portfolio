@@ -15,13 +15,13 @@
   --red: #E06C75;
   --yellow: #E5C07B;
   --bright-black: #5A6374;
-  --bright-white: #DCDFE4;
-  --bright-blue: #61AFEF;
-  --bright-cyan: #56B6C2;
-  --bright-green: #98C379;
-  --bright-purple: #C678DD;
-  --bright-red: #E06C75;
-  --bright-yellow: #E5C07B;
+  --bright-white: #DCDFE480;
+  --bright-blue: #61AFEF80;
+  --bright-cyan: #56B6C280;
+  --bright-green: #98C37980;
+  --bright-purple: #C678DD80;
+  --bright-red: #E06C7580;
+  --bright-yellow: #E5C07B80;
 
   color-scheme: light dark;
   color: var(--foreground);
@@ -46,7 +46,7 @@
 
 body {
   margin: 0;
-  min-width: 320px;
+  max-width: 100vw;
   min-height: 100vh;
   line-height: 1.2;
   caret-color: transparent;
@@ -56,15 +56,16 @@ body {
 a {
   font-weight: 500;
   color: var(--red);
-  text-decoration: inherit;
-}
+  text-decoration: none;
 
-a:hover {
-  color: var(--bright-red);
+  &:hover {
+    color: var(--bright-red);
+  }
 }
 
 pre {
   margin: 0;
+  white-space: pre-wrap;
 }
 
 @media (prefers-color-scheme: light) {

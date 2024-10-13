@@ -20,6 +20,7 @@ function App() {
 
   /* Input and output console state */
   const [stdout, setStdout] = useState([]);
+  const [progRunning, setProgRunning] = useState(false);
 
   const handleStdinSubmit = useCallback(async event => {
     /* Ignore if not an enter */
@@ -40,6 +41,7 @@ function App() {
     /* Add input to history if non-trival */
     if (input.length != 0) env.current.history.push(input);
 
+
     /* Line feed stdin for the stdout */
     const lineFeed = {
       uname: env.current.username,
@@ -48,8 +50,12 @@ function App() {
       infeed: stdin.current.value
     };
 
+    setStdout([...stdout, lineFeed, ""]);
+
+    setProgRunning(true);
     /* Parse the output of a command given context */
     const output = await parse(input, env.current);
+    setProgRunning(false);
 
     /* Reset the history pointer and the stored command */
     histPointer.current = 0;
@@ -58,13 +64,15 @@ function App() {
     /* Update stdout and reset stdin */
     if (output) setStdout([...stdout, lineFeed, output]);
     else setStdout([...stdout, lineFeed]);
-    stdin.current.value = "";
+    if (stdin.current) stdin.current.value = "";
   }, [stdin, stdout]);
 
   /* Handle keypresses on app
    * Only re-compute function when stdin is changed
    */
   const handleGlobalKeypress = useCallback(event => {
+
+    if (stdin.current && document.activeElement !== stdin.current) stdin.current.focus();
 
     /* Line feed stdin for the stdout */
     const lineFeed = {
@@ -84,7 +92,7 @@ function App() {
       /* Tab to refocus input */
     } else if (event.code === "Tab") {
       event.preventDefault();
-      stdin.current.focus();
+      if (stdin.current) stdin.current.focus();
 
       /* Move backwards (up) through history */
     } else if (event.code === "ArrowUp") {
@@ -136,12 +144,12 @@ function App() {
     // Focus on document on load
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
-    document.body.addEventListener("click", handleFocus)
+    // document.body.addEventListener("click", handleFocus)
     stdin.current.focus();
     return () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
-      document.body.removeEventListener("click", handleFocus)
+      // document.body.removeEventListener("click", handleFocus)
 
     }
   }, [handleFocus])
@@ -178,6 +186,7 @@ function App() {
           cwd={env.current.cwd}
           stdinRef={stdin}
           isActive={true}
+          progRunning={progRunning}
         />
       </div>
     </>

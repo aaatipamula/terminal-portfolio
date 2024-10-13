@@ -1,6 +1,7 @@
 pre.stdin {
   /* Don't overscroll when we input long strings of things */
   overflow-x: clip;
+  display: flex;
 }
 
 span.ps1-bracket {
@@ -28,8 +29,11 @@ span.ps1-arrow {
 }
 
 input[type="text"] {
-  width: 100%;
+  /* width: 100%; */
   border: none;
+
+  flex-grow: 1;
+  min-width: 0;
 
   /* Inhereit background and text color, set caret color */
   color: inherit;

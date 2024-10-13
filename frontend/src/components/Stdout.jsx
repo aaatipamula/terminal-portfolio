@@ -1,4 +1,5 @@
 import Stdin from "./Stdin"
+import MarkdownRenderer from "./MarkdownRender"
 
 /**
  * @typedef { import('./Stdin').StdinProps } StdinItem
@@ -10,7 +11,7 @@ import Stdin from "./Stdin"
 function Stdout({ stdout }) {
   const output = stdout.map(item => {
     if (typeof(item) === 'string')
-      return <pre key={crypto.randomUUID()}>{item}</pre>;
+      return <MarkdownRenderer key={crypto.randomUUID()} text={item}/>
     return <Stdin {...item} key={crypto.randomUUID()}/>
   });
 
