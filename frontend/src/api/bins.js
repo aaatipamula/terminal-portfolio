@@ -20,11 +20,10 @@ function expandPath(username, to_path, from_path) {
   from_path = from_path.startsWith("~") ? from_path.replace("~", home) : from_path;
   console.log(to_path, from_path);
   while (to_path.startsWith("..")) {
-    from_path = from_path.replace(/\/\w*\/?$/gm, "");
     to_path = to_path.replace(/..\/?/, "");
-    to_path = from_path + "/" + to_path;
+    from_path = from_path.replace(/\/\w*\/?$/gm, "");
   }
-  return to_path;
+  return from_path + '/' + to_path;
 }
 
 function longestStrings(arr) {
@@ -118,7 +117,6 @@ async function cd({ ctx, args }) {
 
   let msg = `cd: ${path}: does not exist.`;
   try {
-    // TODO: Validate path after filesytem api implemented
     const res = await fetch(SERVER_URI + "fs" + abs_path);
     if (res.ok) {
       const data = await res.json();
