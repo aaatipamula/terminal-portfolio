@@ -146,14 +146,17 @@ function App() {
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
     // document.body.addEventListener("click", handleFocus)
-    stdin.current.focus();
+    if (stdin.current) {
+      stdin.current.focus();
+      stdin.current.value = "help";
+    }
     return () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
       // document.body.removeEventListener("click", handleFocus)
 
     }
-  }, [handleFocus])
+  }, [])
 
   /* Add listener to handle keypresses
    * Clean up on dismount

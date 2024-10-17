@@ -63,6 +63,14 @@ a {
   }
 }
 
+strong {
+  color: var(--blue);
+
+  &:hover {
+    color: var(--bright-blue);
+  }
+}
+
 pre {
   margin: 0;
   white-space: pre-wrap;

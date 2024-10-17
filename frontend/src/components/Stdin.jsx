@@ -19,7 +19,7 @@ import './Stdin.css';
  */
 function Stdin({ stdinRef, infeed, uname, cwd, isActive, progRunning }) {
 
-  const outval = (isActive) ? <input id="stdin" type="text" ref={stdinRef}/> : infeed
+  const outval = (isActive) ? <input id="stdin" type="text" ref={stdinRef} autoComplete='off'/> : infeed
   const path = cwd.replace(`/home/${uname}`, "~");
 
   return (

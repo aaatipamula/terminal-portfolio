@@ -9,6 +9,7 @@ function MarkdownRenderer({ text }) {
       disallowedElements={['br']}
       components={{
         p: ({ node, ...props }) => <pre {...props}/>,
+        a: ({ node, ...props }) => <a rel="noopener noreferrer" target="_blank" {...props}/>,
       }}
     >
       {text}

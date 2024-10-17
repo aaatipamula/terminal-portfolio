@@ -112,13 +112,13 @@ def convert_gh_repos(gh_repos: List[Any]) -> List[FileObj]:
     files: List[FileObj] = []
     for repo in gh_repos:
         link = repo.get('html_url')
-        name = f"[{repo['name']}]({link})"
+        name = f"[**{repo['name']}**]({link})"
         modified_time = convert_datetime(repo['updated_at'])
         access_time = convert_datetime(repo['created_at'])
         metadata: FileObj = {
             'name': name,
             'is_directory': True,
-            'permissions': '-rw-r--r--', # Change this to check permissions
+            'permissions': 'drw-r--r--', # Change this to check permissions
             'links': 0,
             'owner': repo['owner']['login'],
             'group': repo['owner']['login'],
@@ -134,12 +134,12 @@ def convert_gh_users(gh_users: List[Any]) -> List[FileObj]:
     files: List[FileObj] = []
     for user in gh_users:
         link = user.get('html_url')
-        name = f"[{user['login']}]({link})"
+        name = f"[**{user['login']}**]({link})"
         curr_time = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
         metadata: FileObj = {
             'name': name,
             'is_directory': True,
-            'permissions': '-rw-r--r--', # Change this to check permissions
+            'permissions': 'drw-r--r--', # Change this to check permissions
             'links': 0,
             'owner': user['login'],
             'group': user['login'],
@@ -154,8 +154,10 @@ def convert_gh_users(gh_users: List[Any]) -> List[FileObj]:
 def convert_repo_file(user: str) -> Callable[[Any], FileObj]:
     def convert(file: Any) -> FileObj:
         link = file.get('html_url')
-        name = f"[{file['name']}]({link})"
-        return create_file(name, user, is_directory=file['type']=='dir') 
+        is_dir = file['type'] == 'dir'
+        name = f"**{file['name']}**" if is_dir else file['name']
+        link_name = f"[{name}]({link})"
+        return create_file(link_name, user, is_directory=is_dir) 
     return convert
 
 def convert_repo_files(obj: Union[List[Any], Any], user: str) -> List[FileObj]:

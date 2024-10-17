@@ -1,5 +1,6 @@
 /**
  * @typedef { import('../types').Env } Env
+ * @typedef { import('../types').FileObj } FileObj
  */
 
 const SERVER_URI = import.meta.env.VITE_SERVER_URI || "http://localhost:8000/";
@@ -20,19 +21,46 @@ function parseArgs(args) {
   return { opts: opts, positional: positional };
 }
 
-/* Expand the "~", ".", and ".." to the full path */
-function expandPath(username, to_path, from_path) {
-  const home = `/home/${username}`;
-  to_path = to_path.startsWith("~") ? to_path.replace("~", home) : to_path;
-  from_path = from_path.startsWith("~") ? from_path.replace("~", home) : from_path;
-  console.log(to_path, from_path);
-  while (to_path.startsWith("..")) {
-    to_path = to_path.replace(/..\/?/, "");
-    from_path = from_path.replace(/\/\w*\/?$/gm, "");
+/**
+  * @param { string } username
+  * @param { string } currentPath
+  * @param { string } inputPath
+  */
+function expandPath(username, currentPath, inputPath) {
+  const homeDir = `/home/${username}`;
+
+  if (inputPath.startsWith('/')) {
+    return inputPath;
   }
-  return from_path + '/' + to_path;
+
+  if (inputPath.startsWith('~')) {
+    inputPath = inputPath.slice(1);
+    currentPath = homeDir;
+  } else if (inputPath === '~') {
+    inputPath = homeDir;
+  }
+
+  const pathParts = currentPath.split('/').filter(Boolean); // Removes empty parts
+
+  inputPath.split('/').forEach(part => {
+    if (part === '..') {
+      if (pathParts.length > 0) pathParts.pop();
+
+    } else if (part === '~') {
+      pathParts.push('home');
+      pathParts.push(username);
+
+    } else if (part !== '.' && part !== '') {
+      pathParts.push(part);
+    }
+  });
+
+  return `/${pathParts.join('/')}`;
 }
 
+/**
+  * @param { FileObj[] } arr
+  */
 function longestStrings(arr) {
     let maxOwnerLength = 0;
     let maxGroupLength = 0;
@@ -73,6 +101,9 @@ function longestStrings(arr) {
  * grep
  */
 
+/**
+  * @param {{ args: string[] }}
+  */
 async function echo({ args }) {
   if (args.length === 0) return args;
   let str = args.join(' ');
@@ -80,12 +111,12 @@ async function echo({ args }) {
 }
 
 /**
-  * @param {{ ctx: FileObj, args: string[] }}
+  * @param {{ ctx: Env, args: string[] }}
   */
 async function ls({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
-  const abs_path = path ? expandPath(ctx.username, path, ctx.cwd) : ctx.cwd;
+  const abs_path = path ? expandPath(ctx.username, ctx.cwd, path) : ctx.cwd;
 
   // TODO: Replace url with an env variable
   try{
@@ -99,10 +130,10 @@ async function ls({ ctx, args }) {
       const reduceDirObj = (fileArr, file) =>  {
         if (!(args.opts.includes('a') || args.opts.includes("all")) && file.name.startsWith('.')) return fileArr;
 
-        let filestring = file.name;
+        let filestring = file.is_directory ? `**${file.name}**` : file.name;
 
         if (args.opts.includes('l') || args.opts.includes("list")) {
-          filestring = `${file.permissions} ${file.owner.padEnd(padOwner)}${file.group.padEnd(padGroup)}${file.size.padStart(padSize)} ${file.modified_time} ${file.name}`;
+          filestring = `${file.permissions} ${file.owner.padEnd(padOwner)}${file.group.padEnd(padGroup)}${file.size.padStart(padSize)} ${file.modified_time} ${filestring}`;
         }
 
         fileArr.push(filestring);
@@ -121,12 +152,12 @@ async function ls({ ctx, args }) {
 }
 
 /**
-  * @param {{ ctx: FileObj, args: string[] }}
+  * @param {{ ctx: Env, args: string[] }}
   */
 async function cd({ ctx, args }) {
   args = parseArgs(args);
   const path = args.positional.pop();
-  const abs_path = path ? expandPath(ctx.username, path, ctx.cwd) : `/home/${ctx.username}`;
+  const abs_path = path ? expandPath(ctx.username, ctx.cwd, path) : `/home/${ctx.username}`;
 
   let msg = `cd: ${path}: does not exist.`;
   try {
@@ -147,10 +178,16 @@ async function cd({ ctx, args }) {
   return msg;
 }
 
+/**
+  * @param {{ ctx: Env }}
+  */
 async function pwd({ ctx }) {
   return ctx.cwd;
 }
 
+/**
+  * @param {{ ctx: Env, args: string[] }}
+  */
 async function history({ ctx, args }) {
   args = parseArgs(args)
   const opt = args.positional.pop();
@@ -161,10 +198,16 @@ async function history({ ctx, args }) {
   return ctx.history.map((val, index) => String(index + 1).padStart(3, ' ') + " " + val).join("\n");
 }
 
+/**
+  * @param {{ ctx: Env, args: string[] }}
+  */
 async function hist({ ctx, args }) {
   return history({ args: args, ctx: ctx });
 }
 
+/**
+  * @param {{ ctx: Env, args: string[] }}
+  */
 async function su({ ctx, args }) {
   args = parseArgs(args);
   if (args.positional.length > 1) return "Please provide one user."
@@ -183,16 +226,15 @@ async function fullscreen() {
 
 async function help() {
   return `Commands:
-  echo - Repeat all following text after 'echo'
-  ls - List all files in current directory
-  cd - Print the current working directory
-  history/hist - List the history of commands you've used
-  su - Switch user
-  fullscreen - Make the tab full screen
-  help - display this help page
+  echo           - Repeat all following text after 'echo'
+  ls             - List all files in current directory
+  cd             - Print the current working directory
+  su             - Switch user
+  history [hist] - List the history of commands you've used
+  fullscreen     - Make the tab full screen
+  help           - display this help page
   `
 }
-
 
 export {
   echo, ls, cd, pwd, history, hist,
