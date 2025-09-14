@@ -11,13 +11,20 @@ app = Flask("backend")
 CORS(app)
 load_dotenv()
 
+app.url_map.strict_slashes = False # Use same handler for /foo and /foo/ 
+
 GITHUB_API_URL = "https://api.github.com"
-GITHUB_API_TOKEN = os.environ.get("GH_API_TOKEN", "")
+GITHUB_API_TOKEN = os.environ.get("GH_API_TOKEN")
+assert GITHUB_API_TOKEN != None
 GITHUB_API_HEADERS = {
     "Accept": "application/vnd.github+json",
     "Authorization": f"Bearer: {GITHUB_API_TOKEN}",
     "X-Github-Api-Version": "2022-11-28",
 }
+
+@app.route("/health")
+def get_health():
+    return 200
 
 @app.route("/fs/home/")
 def get_users():

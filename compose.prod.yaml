@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile.prod
+    image: terminal_portfolio_backend:latest
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      - FLASK_ENV=production
+    networks:
+      - webnet
+    expose:
+      - "8000"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_SERVER_URI: ${VITE_SERVER_URI}
+    image: terminal_portfolio_frontend:latest
+    restart: unless-stopped
+    ports:
+      - "8080:80"   # don't interfere with external port 80
+    env_file:
+      - .env.prod
+    networks:
+      - webnet
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  webnet:
+    driver: bridge
+

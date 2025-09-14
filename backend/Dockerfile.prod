@@ -1,0 +1,40 @@
+# Multi-stage not required if backend is pure python, but we'll keep it single-stage with small base
+FROM python:3.11-slim
+
+# Set environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Create non-root user
+RUN groupadd -r app && useradd -r -g app app
+
+# Install system deps (adjust if you need e.g. build-essential)
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends gcc libpq-dev curl \
+  && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy requirements first for caching
+COPY requirements.txt /app/requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+RUN pip install gunicorn==23.0.0
+
+# Copy app
+COPY . /app
+
+# Give ownership & change user
+RUN chown -R app:app /app
+USER app
+
+# Expose the port Gunicorn will use
+EXPOSE 8000
+
+# Healthcheck endpoint (requires curl in the image or use http check from docker)
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl -f http://localhost:8000/health || exit 1
+
+# Entry point: run migrations (optionally) then gunicorn
+# Replace <yourapp>:app with your WSGI app (e.g. app:create_app())
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "--worker-class", "gthread", "--threads", "2", "proxy:app"]
+

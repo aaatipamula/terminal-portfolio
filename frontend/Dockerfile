@@ -4,7 +4,7 @@ FROM --platform=$BUILDPLATFORM node:lts AS development
 
 ENV CI=true
 ENV PORT=3000
-ENV VITE_SERVER_URI=http://localhost:8000/
+ENV VITE_SERVER_URI=http://build:8000/
 
 WORKDIR /code
 COPY package.json /code/package.json

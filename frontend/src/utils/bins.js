@@ -3,7 +3,7 @@
  * @typedef { import('../types').FileObj } FileObj
  */
 
-const SERVER_URI = import.meta.env.VITE_SERVER_URI || "http://localhost:8000/";
+const SERVER_URI = import.meta.env.VITE_SERVER_URI || "http://backend:8000/";
 
 /**
   * @param { string[] } args
